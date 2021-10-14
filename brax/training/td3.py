@@ -561,16 +561,17 @@ def make_params_and_inference_fn(observation_size, action_size,
   """Creates params and inference function for the SAC agent."""
   obs_normalizer_params, obs_normalizer_apply_fn = normalization.make_data_and_apply_fn(
       observation_size, normalize_observations)
-  parametric_action_distribution = distribution.NormalTanhDistribution(
-      event_size=action_size)
-  policy_model, _ = make_sac_networks(parametric_action_distribution.param_size,
+  # parametric_action_distribution = distribution.NormalTanhDistribution(
+  #     event_size=action_size)
+  policy_model, _ = make_td3_networks(action_size,
                                       observation_size, action_size)
 
   def inference_fn(params, obs, key):
     normalizer_params, policy_params = params
     obs = obs_normalizer_apply_fn(normalizer_params, obs)
-    action = parametric_action_distribution.sample(
-        policy_model.apply(policy_params, obs), key)
+    # action = parametric_action_distribution.sample(
+    #     policy_model.apply(policy_params, obs), key)
+    action = policy_model.apply(policy_params, obs)
     return action
 
   params = (obs_normalizer_params, policy_model.init(jax.random.PRNGKey(0)))
