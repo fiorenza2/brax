@@ -144,6 +144,9 @@ def train(
     max_replay_size: int = 1048576,
     policy_grad_updates_per_step: float = 1,
     value_grad_updates_per_step: float = 2,
+    target_noise: float = 0.2,
+    target_noise_clip: float = 0.5,
+    exploration_noise: float = 0.1,
     progress_fn: Optional[Callable[[int, Dict[str, Any]], None]] = None,
     # The rewarder is an init function and a compute_reward function.
     # It is used to change the reward before the learner trains on it.
