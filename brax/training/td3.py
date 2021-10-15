@@ -620,7 +620,6 @@ def make_params_and_inference_fn(observation_size, action_size,
   """Creates params and inference function for the TD3 agent."""
   obs_normalizer_params, obs_normalizer_apply_fn = normalization.make_data_and_apply_fn(
       observation_size, normalize_observations)
-<<<<<<< HEAD
   policy_model, _ = make_td3_networks(observation_size, action_size)
   policy_head = get_policy_head(head_type)
   def inference_fn(params, obs, key):
@@ -628,19 +627,6 @@ def make_params_and_inference_fn(observation_size, action_size,
     obs = obs_normalizer_apply_fn(normalizer_params, obs)
     action = policy_head(
         policy_model.apply(policy_params, obs), key)
-=======
-  # parametric_action_distribution = distribution.NormalTanhDistribution(
-  #     event_size=action_size)
-  policy_model, _ = make_td3_networks(action_size,
-                                      observation_size, action_size)
-
-  def inference_fn(params, obs, key):
-    normalizer_params, policy_params = params
-    obs = obs_normalizer_apply_fn(normalizer_params, obs)
-    # action = parametric_action_distribution.sample(
-    #     policy_model.apply(policy_params, obs), key)
-    action = policy_model.apply(policy_params, obs)
->>>>>>> c0d475386697c6d90b236df229a29cd046bf91f9
     return action
 
   params = (obs_normalizer_params, policy_model.init(jax.random.PRNGKey(0)))
