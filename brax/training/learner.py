@@ -30,10 +30,11 @@ from brax.training import ars
 from brax.training import es
 from brax.training import ppo
 from brax.training import sac
+from brax.training import td3
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_enum('learner', 'ppo', ['ppo', 'apg', 'es', 'sac', 'ars'],
+flags.DEFINE_enum('learner', 'ppo', ['ppo', 'apg', 'es', 'sac', 'td3', 'ars'],
                   'Which algorithm to run.')
 flags.DEFINE_string('env', 'ant', 'Name of environment to train.')
 flags.DEFINE_integer('total_env_steps', 50000000,
@@ -82,6 +83,15 @@ flags.DEFINE_integer('max_replay_size', 1048576, 'Maximal replay buffer size.')
 flags.DEFINE_float('grad_updates_per_step', 1.0,
                    'How many SAC gradient updates to run per one step in the '
                    'environment.')
+# TD3 hps.
+flags.DEFINE_integer('policy_update_ratio', 2,
+                     'Ratio of critic:policy updates')
+flags.DEFINE_float('target_policy_noise_std', 0.2,
+                     'Std. of noise to add to target policy')
+flags.DEFINE_float('target_policy_noise_clip', 0.5,
+                   'How much to clip sampled noise vector')
+flags.DEFINE_enum('head_type_td3', 'tanh', ['', 'clip', 'tanh'],
+                  'Which policy head to use for TD3.')
 # ARS hps.
 flags.DEFINE_integer('number_of_directions', 60,
                      'Number of directions to explore. The actual number is 2x '
@@ -122,6 +132,30 @@ def main(unused_argv):
           seed=FLAGS.seed,
           reward_scaling=FLAGS.reward_scaling,
           grad_updates_per_step=FLAGS.grad_updates_per_step,
+          episode_length=FLAGS.episode_length,
+          progress_fn=writer.write_scalars)
+    if FLAGS.learner == 'td3':
+      inference_fn, params, _ = td3.train(
+          environment_fn=env_fn,
+          num_envs=FLAGS.num_envs,
+          action_repeat=FLAGS.action_repeat,
+          normalize_observations=FLAGS.normalize_observations,
+          num_timesteps=FLAGS.total_env_steps,
+          log_frequency=FLAGS.eval_frequency,
+          batch_size=FLAGS.batch_size,
+          min_replay_size=FLAGS.min_replay_size,
+          max_replay_size=FLAGS.max_replay_size,
+          learning_rate=FLAGS.learning_rate,
+          discounting=FLAGS.discounting,
+          max_devices_per_host=FLAGS.max_devices_per_host,
+          seed=FLAGS.seed,
+          reward_scaling=FLAGS.reward_scaling,
+          grad_updates_per_step=FLAGS.grad_updates_per_step,
+          policy_update_ratio=FLAGS.policy_update_ratio,
+          target_policy_noise_std=FLAGS.target_policy_noise_std,
+          target_policy_noise_clip=FLAGS.target_policy_noise_clip,
+          exploration_noise_std=FLAGS.exploration_noise_std,
+          head_type=FLAGS.head_type_td3,
           episode_length=FLAGS.episode_length,
           progress_fn=writer.write_scalars)
     if FLAGS.learner == 'es':
