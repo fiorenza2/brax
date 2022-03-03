@@ -205,6 +205,7 @@ def train(
     log_frequency=10,
     normalize_observations=False,
     reward_scaling=1.,
+    restart_rollout=False,
     progress_fn: Optional[Callable[[int, Dict[str, Any]], None]] = None,
     checkpoint_dir: Optional[str] = None,
 ):
@@ -428,6 +429,9 @@ def train(
   metrics = {}
 
   for it in range(log_frequency + 1):
+    if restart_rollout:
+      print('Restarting Rollout')
+      state = reset_fn(key_envs)
     logging.info('starting iteration %s %s', it, time.time() - xt)
     t = time.time()
 
