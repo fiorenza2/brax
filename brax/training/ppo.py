@@ -206,12 +206,15 @@ def train(
     normalize_observations=False,
     reward_scaling=1.,
     restart_rollout=False,
+    eval_episode_length: Optional[int]=None,
     progress_fn: Optional[Callable[[int, Dict[str, Any]], None]] = None,
     checkpoint_dir: Optional[str] = None,
 ):
   """PPO training."""
   assert batch_size * num_minibatches % num_envs == 0
   xt = time.time()
+
+  eval_episode_length = episode_length if eval_episode_length == None else eval_episode_length
 
   process_count = jax.process_count()
   process_id = jax.process_index()
@@ -246,7 +249,7 @@ def train(
   eval_env = environment_fn(
       action_repeat=action_repeat,
       batch_size=num_eval_envs,
-      episode_length=episode_length,
+      episode_length=eval_episode_length,
       eval_metrics=True)
   eval_step_fn = jax.jit(eval_env.step)
   eval_first_state = jax.jit(eval_env.reset)(key_eval)
