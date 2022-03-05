@@ -439,6 +439,7 @@ def train(
     t = time.time()
 
     if process_id == 0:
+      print('evaluating...')
       eval_state, key_debug = (
           run_eval(eval_first_state, key_debug,
                    training_state.params['policy'],
