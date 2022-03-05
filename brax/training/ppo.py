@@ -304,7 +304,7 @@ def train(
     policy_params = jax.tree_map(lambda x: x[0], policy_params)
     (state, _, _, key), _ = jax.lax.scan(
         do_one_step_eval, (state, policy_params, normalizer_params, key), (),
-        length=episode_length // action_repeat)
+        length=eval_episode_length // action_repeat)
     return state, key
 
   def do_one_step(carry, unused_target_t):
@@ -439,7 +439,6 @@ def train(
     t = time.time()
 
     if process_id == 0:
-      print('evaluating...')
       eval_state, key_debug = (
           run_eval(eval_first_state, key_debug,
                    training_state.params['policy'],
@@ -447,7 +446,7 @@ def train(
       eval_metrics = eval_state.info['eval_metrics']
       eval_metrics.completed_episodes.block_until_ready()
       eval_walltime += time.time() - t
-      eval_sps = (episode_length * eval_first_state.reward.shape[0] /
+      eval_sps = (eval_episode_length * eval_first_state.reward.shape[0] /
                   (time.time() - t))
       avg_episode_length = (
           eval_metrics.completed_episodes_steps /
