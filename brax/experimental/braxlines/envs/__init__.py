@@ -12,25 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Halfcheetah."""
-# pylint:disable=protected-access
-from brax.envs import halfcheetah
-from brax.experimental.composer import component_editor
-
-COLLIDES = ('torso', 'bfoot', 'ffoot')
-
-ROOT = 'torso'
-
-DEFAULT_OBSERVERS = ('root_z_joints',)
-
-TERM_FN = None
-
-
-def get_specs():
-  return dict(
-      message_str=component_editor.filter_message_str(
-          halfcheetah._SYSTEM_CONFIG_SPRING, 'floor'),
-      collides=COLLIDES,
-      root=ROOT,
-      term_fn=TERM_FN,
-      observers=DEFAULT_OBSERVERS)
